@@ -1,13 +1,18 @@
+
+<img width="3891" height="1389" alt="TopoTools-logo-FINAL" src="https://github.com/user-attachments/assets/ef804ddc-da9d-46fe-a456-dc0aff3667e0" />
+
+
 # VMD TopoTools package. Version 1.10
 
-Copyright (c) 2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2022,2023,2024,2025
- by Axel Kohlmeyer <akohlmey@gmail.com>
+Note: This repository is the new official home for TopoTools. Development has moved here from the original repository. Please submit all Pull Requests and Issues to the develop branch of this repository.
 
 [![DOI](https://zenodo.org/badge/13922095.svg)](https://zenodo.org/badge/latestdoi/13922095)
 
-This package contains contributed features from:
+This package was written by Axel Kohlmeyer. It contains contributed features from:
 - Josh Vermaas (fully working gromacs topology files for CHARMM)
 - Konstantin W (replicatemols for non-orthogonal cells)
+
+It is currently maintained by the groups of Jacob Gissinger (Stevens Institute of Technology) and Josh Vermaas (Michigan State University).
 
 -------------------
 
@@ -20,12 +25,7 @@ and their corresponding properties (type, order, etc.).
 
 ## Updates
 
-The public git repository is at https://github.com/akohlmey/topotools
-
-TopoTools version 1.10 is the **final** release created by **me**.
-I have no more plans to further develop and maintain this package.
-It is therefore available for "adoption". Please contact me via email
-or PM if you want to take over.
+The public git repository is at https://github.com/NanoCIPHER-Lab/topotools
 
 ## Installation
 
@@ -41,3 +41,5 @@ next to it.  If it already has the topotools1.10 folder, overwrite
 the files inside with the new version. VMD should use the new
 version automatically at the next start.
 
+Copyright (c) 2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2022,2023,2024,2025
+ by Axel Kohlmeyer.
