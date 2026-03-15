@@ -9,7 +9,7 @@
 #
 # Copyright (c) 2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2022,2023,2024,2025
 #               by Axel Kohlmeyer <akohlmey@gmail.com>
-# support for crossterms contributed by Josh Vermaas <joshua.vermaas@gmail.com>
+# Support for crossterms contributed by Josh Vermaas <joshua.vermaas@gmail.com>
 #
 # $Id: topotools.tcl,v 1.36 2023/04/21 05:41:03 johns Exp $
 
