@@ -255,7 +255,6 @@ proc ::TopoTools::selections2mol {sellist} {
     return $mol
 }
 
-
 # create a larger system by replicating the original unitcell
 # arguments: molecule id of molecule to replicate
 #            multiples of the cell vectors defaulting to 1
@@ -506,3 +505,67 @@ proc ::TopoTools::fixupnumtypes {{mol top} {types all}} {
     }
 }
 
+###############################################################################
+# FUNCTION: ::TopoTools::remove_molecules_overlaps_and_merge
+# ------------------------------------------------------------------------------
+# PURPOSE:
+#   Removes atoms from the second molecule that are physically overlapping with the
+#   first molecule and returns the result as a new molecule.
+#
+# INTERFACE:
+#   ::TopoTools::remove_molecules_overlaps_and_merge_to_molecule <mol1> <mol2> <cutoff>
+#
+# ARGUMENTS:
+#   mol1     : (molecule id) The reference molecule.
+#              These atoms are NEVER deleted.
+#
+#   mol2     : (molecule id) The molecule from which overlapping atoms are removed.
+#              Atoms in this molecule are deleted if they are within distance
+#              threshold 'cutoff' of any atoms in mol1.
+#
+#   cutoff   : (float) Distance threshold in Angstroms.
+#
+# RETURNS:
+#   A molecule id
+#
+# PREREQUISITES:
+#   Requires VMD plugins: 'topotools' and 'pbctools'.
+#
+# CITATION:
+#   Developed with logic optimization from Google Gemini (AI).
+#   Relies on TopoTools (Kohlmeyer, 2019) and VMD (Humphrey et al., 1996).
+################################################################################
+proc ::TopoTools::remove_overlaps_and_merge { mol1 mol2 cutoff } {
+    # 1. Make 2 selections of all the atoms im mol1 and mol2.
+    set selection_1 [atomselect mol1 "all"]
+    set selection_2 [atomselect mol2 "all"]
+
+    # 2. Compute the list of atom indices of mol2 that are within 'cutoff' of
+    #    mol1. These atoms will be removed from mol2 and form a new atom
+    #    selection.
+    set mol2_atoms_to_remove [measure contacts $cutoff $selection_1 $selection_2]
+    set num_mol2_atoms_to_remove [llength $mol2_atoms_to_remove]
+
+    # 3. Form a new selection text that will remove the atoms with indices
+    #    'mol2_atoms_to_remove' from mol2.
+    if { $num_mol2_atoms_to_remove } > 0 {
+        set mol2_noverlapping_txt "[$selection_2 text] and not index $mol2_atoms_to_remove"
+    } else {
+        set mol2_noverlapping_txt "[$selection_2 text]"
+    }
+
+    # 4. Form the atom selection from mol2 with selection text
+    #    'mol2_noverlapping_txt'
+    set selection_2_nonoverlapping [atomselect $mol2 $mol2_noverlapping_txt]
+
+    # 5. Use procedure  ::TopoTools::selections2mol to form the the
+    #    nonoverlapping molecule.
+    set selections_to_merge [ list $selection_1 $selection_2_nonoverlapping ]
+    set merged_molecule [ selections2mol $selections_to_merge ]
+
+    # 6. Remove all selections and return molecule id.
+    $selection_1 delete
+    $selection_2 delete
+    $selection_2_nonoverlapping delete
+    return $merged_molecule
+}

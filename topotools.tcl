@@ -79,7 +79,10 @@ namespace eval ::TopoTools:: {
     # utility command exports. the other commands are
     # best used through the "topo" frontend command.
     # part 1: operations on whole systems/selections
-    namespace export mergemols selections2mol replicatemol
+    namespace export mergemols \
+                     selections2mol \
+                     replicatemol \
+                     remove_molecules_overlaps_and_merge
 }
 
 # help/usage/error message and online documentation.
