@@ -563,9 +563,50 @@ proc ::TopoTools::remove_overlaps_and_merge { mol1 mol2 cutoff } {
     set selections_to_merge [ list $selection_1 $selection_2_nonoverlapping ]
     set merged_molecule [ selections2mol $selections_to_merge ]
 
-    # 6. Remove all selections and return molecule id.
+    # 6. Fix the box the box that contains the molecule.
+    set mol_ids [ list $mol1 $mol2 ]
+    _fix_containing_box $merged_molecule $mol_ids
     $selection_1 delete
     $selection_2 delete
     $selection_2_nonoverlapping delete
+
+    # 6. Remove all selections and return molecule id.
     return $merged_molecule
 }
+
+# ---
+# Private procedures
+# ---
+
+###############################################################################
+# FUNCTION: ::TopoTools::_fix_containing_box
+# ------------------------------------------------------------------------------
+# PURPOSE:
+#   Sets the containing box for a set of merged molecules. We calculate the
+#   maximum and minimum extents for each dimension, and respectively set to the
+#   box dimensions length.
+#
+# INTERFACE:
+#   ::TopoTools::_fix_containing_box  <merged_mol_id>
+#
+# ARGUMENTS:
+#   merged_mol_id : (molecule id) The molecule id of which the containing box
+#   wil be calculated.
+#
+# RETURNS:
+#   No values returned.
+#
+# PREREQUISITES:
+#   Requires VMD plugins: 'topotools' and 'pbctools'.
+#
+# CITATION:
+#   Developed with logic optimization from Google Gemini (AI).
+#   Relies on TopoTools (Kohlmeyer, 2019) and VMD (Humphrey et al., 1996).
+###############################################################################
+proc ::TopoTools::_fix_containing_box { merged_mol_id } {
+    sel
+    lassign [measure minmax $sel -withradii] min max
+
+}
+
+
