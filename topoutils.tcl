@@ -537,22 +537,25 @@ proc ::TopoTools::fixupnumtypes {{mol top} {types all}} {
 ################################################################################
 proc ::TopoTools::remove_overlaps_and_merge { mol1 mol2 cutoff } {
     # 1. Make 2 selections of all the atoms im mol1 and mol2.
-    set selection_1 [atomselect mol1 "all"]
-    set selection_2 [atomselect mol2 "all"]
+    set selection_1 [atomselect $mol1 "all"]
+    set selection_2 [atomselect $mol2 "all"]
 
     # 2. Compute the list of atom indices of mol2 that are within 'cutoff' of
     #    mol1. These atoms will be removed from mol2 and form a new atom
     #    selection.
-    set mol2_atoms_to_remove [measure contacts $cutoff $selection_1 $selection_2]
+    set overlapping_atoms_to_remove [measure contacts $cutoff $selection_1 $selection_2]
+    set mol2_atoms_to_remove [ lindex $overlapping_atoms_to_remove 1 ]
     set num_mol2_atoms_to_remove [llength $mol2_atoms_to_remove]
 
     # 3. Form a new selection text that will remove the atoms with indices
     #    'mol2_atoms_to_remove' from mol2.
-    if { $num_mol2_atoms_to_remove } > 0 {
+    set mol2_noverlapping_txt "[$selection_2 text] and not index $mol2_atoms_to_remove"
+    if { $num_mol2_atoms_to_remove > 0 } {
         set mol2_noverlapping_txt "[$selection_2 text] and not index $mol2_atoms_to_remove"
     } else {
         set mol2_noverlapping_txt "[$selection_2 text]"
     }
+    puts "mol2_noverlapping_txt: $mol2_noverlapping_txt" 
 
     # 4. Form the atom selection from mol2 with selection text
     #    'mol2_noverlapping_txt'
@@ -565,12 +568,14 @@ proc ::TopoTools::remove_overlaps_and_merge { mol1 mol2 cutoff } {
 
     # 6. Fix the box the box that contains the molecule.
     set mol_ids [ list $mol1 $mol2 ]
-    _fix_containing_box $merged_molecule $mol_ids
+    _fix_containing_box $merged_molecule
+
+    # 7. Don't forget to delets the selections.
     $selection_1 delete
     $selection_2 delete
     $selection_2_nonoverlapping delete
 
-    # 6. Remove all selections and return molecule id.
+    # 8. Return molecule id.
     return $merged_molecule
 }
 
@@ -600,13 +605,27 @@ proc ::TopoTools::remove_overlaps_and_merge { mol1 mol2 cutoff } {
 #   Requires VMD plugins: 'topotools' and 'pbctools'.
 #
 # CITATION:
-#   Developed with logic optimization from Google Gemini (AI).
 #   Relies on TopoTools (Kohlmeyer, 2019) and VMD (Humphrey et al., 1996).
 ###############################################################################
 proc ::TopoTools::_fix_containing_box { merged_mol_id } {
-    sel
-    lassign [measure minmax $sel -withradii] min max
+    # Form the selection of all atoms in the `merged_mol_id`. The maximum and minimum
+    # atoms extents for each dimension is used to set the containing bosx.
+    set selection_all_atoms [ atomselect $merged_mol_id "all" ]
 
+    # Calculate the minimum and maximum coordinates of the
+    # atoms in the selection. The coordinates xlo, ylo and zlo stores
+    # the minimum coordinate. The coordinates xhi, yhi and zhi stotes the
+    # maximum coordinates.
+    lassign [measure minmax $selection_all_atoms -withradii] minimum_coordinate maximum_coordinate
+    lassign $minimum_coordinate xlo ylo zlo
+    lassign $maximum_coordinate xhi yhi zhi
+    set box_x_length [ expr {$xhi - $xlo} ]
+    set box_y_length [ expr {$yhi - $ylo} ]
+    set box_z_length [ expr {$zhi - $zlo} ]
+    molinfo $merged_mol_id set {a b c} [ list $box_x_length $box_y_length $box_z_length ]
+
+    # Don't forget to delete the selection.
+    $selection_all_atoms delete
 }
 
 
